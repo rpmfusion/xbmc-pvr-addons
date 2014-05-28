@@ -1,0 +1,36 @@
+diff -up ./addons/pvr.dvblink/Makefile.am.orig ./addons/pvr.dvblink/Makefile.am
+--- ./addons/pvr.dvblink/Makefile.am.orig	2014-03-14 11:52:32.000000000 +0100
++++ ./addons/pvr.dvblink/Makefile.am	2014-03-24 01:32:58.870000000 +0100
+@@ -10,7 +10,7 @@ ADDONNAME       = pvr.dvblink
+ LIBNAME         = libdvblink-addon
+ lib_LTLIBRARIES = libdvblink-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/libdvblinkremote/libdvblinkremote.la
++LIBS            = -ldvblinkremote
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./configure.ac.orig ./configure.ac
+--- ./configure.ac.orig	2014-03-22 05:37:02.727000000 +0100
++++ ./configure.ac	2014-03-24 01:27:17.645000000 +0100
+@@ -269,8 +269,6 @@ AC_CONFIG_FILES([Makefile \
+                  lib/cmyth/Makefile \
+                  lib/cmyth/libcmyth/Makefile \
+                  lib/cmyth/librefmem/Makefile \
+-                 lib/tinyxml2/Makefile \
+-                 lib/libdvblinkremote/Makefile \
+                  addons/Makefile \
+                  addons/pvr.demo/Makefile \
+                  addons/pvr.dvbviewer/Makefile \
+diff -up ./lib/Makefile.am.orig ./lib/Makefile.am
+--- ./lib/Makefile.am.orig	2014-03-22 05:40:03.030000000 +0100
++++ ./lib/Makefile.am	2014-03-24 02:07:17.832000000 +0100
+@@ -2,7 +2,7 @@ if ADDON_MYTHTV
+           ADDITIONAL_SUBDIRS = cmyth
+ endif
+ 
+-SUBDIRS = libhts tinyxml2 libdvblinkremote $(ADDITIONAL_SUBDIRS)
++SUBDIRS = libhts $(ADDITIONAL_SUBDIRS)
+ 
+ zip:
+ 
