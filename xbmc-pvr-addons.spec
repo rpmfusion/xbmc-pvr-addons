@@ -2,34 +2,36 @@
 # try using the same hash that upstream uses for the current XBMC version
 # available in RPMFusion. It can be found in the XBMC source tree like so:
 #   grep ^VERSION tools/depends/target/xbmc-pvr-addons/Makefile
-#global commit 2955e1dd62f4047b2782cb927f7671ae209f20d8
-#global short_commit %%(c=%%{commit}; echo ${c:0:7})
-#global commit_date 20140462
-#global prerelease %%{commit_date}git%%{short_commit}
-%global tag 13.0-Gotham
+%global commit be12a8da2072e9c3ddad54892df2f85b759d4e9a
+%global short_commit %(c=%{commit}; echo ${c:0:7})
+%global commit_date 20140716
+%global snapshot_release %{commit_date}git%{short_commit}
+# %%global tag 13.0-Gotham
 
 # Minimum supported version of XBMC
-%global xbmc_version 13.0-0.14.Gotham_rc1
+%global xbmc_version 13.2-0.3.beta3
 
 Name:           xbmc-pvr-addons
 Version:        13.0
-Release:        1%{?dist}
+Release:        2.%{snapshot_release}%{?dist}
+# Release:        1%%{?dist}
 Summary:        XBMC PVR add-ons
 
 Group:          Applications/Multimedia
 # Entire package is GPLv3 (see COPYING). All the PVR addons are GPLv2+. Portions
-# of lib/libhts and lib/cmyth are LGPLv2+
-License:        GPLv3 and GPLv2+ and LGPLv2+
+# of lib/libhts and lib/cmyth are LGPLv2+. lib/dvblinkremote is MIT
+License:        GPLv3 and GPLv2+ and LGPLv2+ and MIT
 URL:            https://github.com/opdenkamp/xbmc-pvr-addons
-Source0:        https://github.com/opdenkamp/%{name}/archive/%{tag}/%{name}-%{tag}.tar.gz
+Source0:        https://github.com/opdenkamp/%{name}/archive/%{short_commit}/%{name}-%{short_commit}.tar.gz
+# Source0:        https://github.com/opdenkamp/%%{name}/archive/%%{tag}/%%{name}-%%{tag}.tar.gz
 # Use system jsoncpp library
 Patch0:         %{name}-13.0-use_external_jsoncpp.patch
 # Use system rapidxml library
 Patch1:         %{name}-13.0-use_external_rapidxml.patch
 # Use system tinyxml library
 Patch2:         %{name}-13.0-use_external_tinyxml.patch
-# Use system dvblinkremote library
-Patch3:         %{name}-13.0-use_external_dvblinkremote.patch
+# Use system tinyxml2 library
+Patch3:         %{name}-13.0-use_external_tinyxml2.patch
 # Use system XBMC headers
 Patch4:         %{name}-13.0-use_external_xbmc.patch
 # Use safe format arg to snprintf to fix build on Fedora 21 (see
@@ -37,7 +39,6 @@ Patch4:         %{name}-13.0-use_external_xbmc.patch
 Patch5:         %{name}-13.0-snprintf.patch
 
 BuildRequires:  boost-devel
-BuildRequires:  dvblinkremote-devel
 BuildRequires:  jsoncpp-devel
 BuildRequires:  libtool
 BuildRequires:  mariadb-devel
@@ -46,6 +47,7 @@ BuildRequires:  mesa-libGL-devel
 BuildRequires:  mesa-libGLES-devel
 BuildRequires:  rapidxml-devel
 BuildRequires:  tinyxml-devel
+BuildRequires:  tinyxml2-devel
 BuildRequires:  vdr-devel
 BuildRequires:  xbmc-devel >= %{xbmc_version}
 BuildRequires:  zlib-devel
@@ -221,16 +223,17 @@ An XBMC client to interface to Windows Media Center's record and EPG service.
 
 
 %prep
-%setup -q -n %{name}-%{tag}
+%setup -q -n %{name}-%{commit}
+# %%setup -q -n %%{name}-%%{tag}
 %patch0 -p0 -b .use_external_jsoncpp
 %patch1 -p0 -b .use_external_rapidxml
 %patch2 -p0 -b .use_external_tinyxml
-%patch3 -p0 -b .use_external_dvblinkremote
+%patch3 -p0 -b .use_external_tinyxml2
 %patch4 -p0 -b .use_external_xbmc
 %patch5 -p1 -b .snprintf
 
-# Delete bundled libraries dvblinkremote, jsoncpp, rapidxml, and tinyxml2
-rm -r lib/{jsoncpp,libdvblinkremote,rapidxml,tinyxml2}/
+# Delete bundled libraries jsoncpp, rapidxml, and tinyxml2
+rm -r lib/{jsoncpp,rapidxml,tinyxml2}/
 # Delete bundled tinyxml, but keep wrapper headers provided by XBMC developers
 rm lib/tinyxml/{Makefile.am,readme.txt,tiny*}
 # Delete bundled XBMC headers
@@ -341,6 +344,11 @@ rm $RPM_BUILD_ROOT%{_datadir}/xbmc/addons/*/*.in
 
 
 %changelog
+* Wed Aug 06 2014 Mohamed El Morabity <melmorabity@fedoraproject.org> - 13.0-2.20140716gitbe12a8d
+- Sync with XBMC 13.2 beta3
+- Use bundled (and heavily patched!) version of dvblinkremote library
+- Use system tinyxml2 library to build dvblinkremote instead of bundled one
+
 * Tue May 13 2014 Mohamed El Morabity <melmorabity@fedoraproject.org> - 13.0-1
 - Update to 13.0
 - Drop empty M3U file provided by the iptvsimple addon
